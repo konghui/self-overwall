@@ -19,7 +19,7 @@ function index()
 	if luci.sys.call("which ssr-server >/dev/null")==0 or luci.sys.call("which ss-server >/dev/null")==0 or luci.sys.call("which microsocks >/dev/null")==0 then
 		entry({"admin","services","overwall","server"},arcombine(cbi("overwall/server"),cbi("overwall/server-config")),_("Overwall Server"),7).leaf=true
 	end
-	entry({"admin","services","overwall","log"},form("overwall/log"),_("Log"),8).leaf=true
+        entry({"admin","services","overwall","log"},form("overwall/log"),_("Log"),8).leaf=true
 	entry({"admin","services","overwall","status"},call("status"))
 	entry({"admin","services","overwall","check"},call("check"))
 	entry({"admin","services","overwall","ip"},call("ip"))
