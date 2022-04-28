@@ -9,7 +9,7 @@ uci batch <<EOF
 	set firewall.overwall.path=/var/etc/overwall.include
 	set firewall.overwall.reload=1
 	commit firewall
-        chmod +x /etc/init.d/overwall /usr/share/overwall/* >/dev/null 2>&1
+	chmod +x /etc/init.d/overwall /usr/share/overwall/* >/dev/null 2>&1
 	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
 	exit 0
