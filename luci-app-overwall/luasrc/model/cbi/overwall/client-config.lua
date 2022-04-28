@@ -1,3 +1,6 @@
+require "nixio.fs"
+require "luci.sys"
+require "luci.http"
 local m,s,o,kcp_enable
 local ov="overwall"
 local sid=arg[1]
