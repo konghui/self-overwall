@@ -2,7 +2,7 @@ local m,s,o
 local ov="overwall"
 local uci=luci.model.uci.cursor()
 
-m=Map(ov,translate("Overwall Settings"),translate("<h3>Support SS/SSR/VMESS/VLESS/TROJAN/NAIVEPROXY/SOCKS5/TUN</h3>"))
+m=Map(ov)
 m:section(SimpleSection).template="overwall/status"
 
 local server_table={}
