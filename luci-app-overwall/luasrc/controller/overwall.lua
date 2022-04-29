@@ -1,6 +1,6 @@
 module("luci.controller.overwall",package.seeall)
-local fs=require"nixio.fs"
-local http=require"luci.http"
+local http=require "luci.http"
+local fs=require "nixio.fs"
 CALL=luci.sys.call
 EXEC=luci.sys.exec
 function index()
@@ -32,17 +32,17 @@ function index()
 end
 
 function status()
-	local e={}
-	e.tcp=CALL("ps -w | grep overwall-tcp | grep -qv grep")==0
-	e.udp=CALL("ps -w | grep overwall-udp | grep -qv grep")==0
-	e.yb=CALL("ps -w | grep overwall.*yb | grep -qv grep")==0
-	e.nf=CALL("ps -w | grep overwall.*nf | grep -qv grep")==0
-	e.cu=CALL("ps -w | grep overwall.*cu | grep -qv grep")==0
-	e.tg=CALL("ps -w | grep overwall.*tg | grep -qv grep")==0
+	local e = {}
+	e.tcp=CALL("ps -w | grep overwall-tcp | grep -qv grep >/dev/null") == 0
+	e.udp=CALL("ps -w | grep overwall-udp | grep -qv grep >/dev/null") == 0
+	e.yb=CALL("ps -w | grep overwall.*yb | grep -qv grep >/dev/null") == 0
+	e.nf=CALL("ps -w | grep overwall.*nf | grep -qv grep >/dev/null") == 0
+	e.cu=CALL("ps -w | grep overwall.*cu | grep -qv grep >/dev/null") == 0
+	e.tg=CALL("ps -w | grep overwall.*tg | grep -qv grep >/dev/null") == 0
 	e.dns=CALL("pidof smartdns >/dev/null")==0
 	e.ng=CALL("pidof chinadns-ng >/dev/null")==0
-	e.socks5=CALL("ps -w | grep overwall.*socks5 | grep -qv grep")==0
-	e.srv=CALL("ps -w | grep overwall-server | grep -qv grep")==0
+	e.socks5=CALL("ps -w | grep overwall.*socks5 | grep -qv grep >/dev/null") == 0
+	e.srv=CALL("ps -w | grep overwall-server | grep -qv grep >/dev/null") == 0
 	e.kcp=CALL("pidof kcptun-client >/dev/null")==0
 	http.prepare_content("application/json")
 	http.write_json(e)
@@ -143,17 +143,19 @@ end
 function checksrv()
 	local r="<br/>"
 	local s,n
+	local iret=1
 	luci.model.uci.cursor():foreach("overwall","servers",function(s)
 		if s.alias then
 			n=s.alias
 		elseif s.server and s.server_port then
 			n="%s:%s"%{s.server,s.server_port}
 		end
+		luci.sys.exec(s.server..">>/a")
 		local dp=EXEC("netstat -unl | grep 5336 >/dev/null && echo -n 5336 || echo -n 53")
 		local ip=EXEC("echo "..s.server.." | grep -E ^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$ || \\\
 		nslookup "..s.server.." 127.0.0.1#"..dp.." 2>/dev/null | grep Address | awk -F' ' '{print$NF}' | grep -E ^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$ | sed -n 1p")
 		ip=EXEC("echo -n "..ip)
-		local iret=CALL("ipset add over_wan_ac "..ip.." 2>/dev/null")
+		iret=CALL("ipset add over_wan_ac "..ip.." 2>/dev/null")
 		local t=EXEC(string.format("tcping -q -c 1 -i 1 -t 2 -p %s %s 2>&1 | grep -o 'time=[0-9]*' | awk -F '=' '{print $2}'",s.server_port,ip))
 		if t~='' then
 			if tonumber(t)<100 then
